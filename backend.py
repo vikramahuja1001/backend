@@ -109,11 +109,9 @@ class backend():
 		p.clone(self.repo_path,clone_repo_name)
 
 	def diff(self, commit_sha, compare_to=None):
-        if not compare_to:
-
-            compare_to = self.get_previous_commit(commit_sha)
-
-        commit = self.repo[commit_sha]
+		 if not compare_to:
+			compare_to = self.get_previous_commit(commit_sha)
+		commit = self.repo[commit_sha]
 		parent_commit = self.repo[commit_sha.parents[0]]
 		return write_tree_diff(sys.stdout, self.repo.object_store, parent_commit.tree, commit.tree)
 

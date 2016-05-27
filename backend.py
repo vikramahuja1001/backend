@@ -2,6 +2,7 @@ import os
 
 from dulwich import porcelain as p
 from dulwich import repo
+from dulwich.patch import write_tree_diff
 import time
 
 """Porcelain is a simple wrapper that provides porcelain-like functions on top of Dulwich.
@@ -48,10 +49,14 @@ class backend():
 
 	def local_init(self, repo_name):
 		self.repo_name = repo_name
-		self.repo = p.init(repo_name)
-		self.current_dir = os.getcwd()
-		self.repo_path = self.current_dir + '/' + self.repo_name
-		print self.repo_path
+		try:
+			self.repo = p.init(repo_name)
+			self.current_dir = os.getcwd()
+			self.repo_path = self.current_dir + '/' + self.repo_name
+			print self.repo_path
+			print "Local Repo Created"
+		except:
+			print "Repo already exist, delete it first"
 
 	def create_readme_file(self):
 		name = "README"
@@ -79,43 +84,46 @@ class backend():
 			p.add(self.repo, a)
 
 
-
 	def get_status(self):
 		if os.path.exists(self.repo_path):
 			print p.status(self.repo_path)
 		else:
 			print "Repo does not exist"
 
-	#def add_command(self,a = []):
-
 	def commit(self, message):
 		p.commit(self.repo, message)
 
-
-	def get_previous_versions(self):
+	def get_commit_history(self):
 		print self.repo_path
-		#r = Repo(".")
 		r = self.repo
-		print r
 		p = "README"
-		w = r.get_walker(paths=[p], max_entries=3)
-		print iter(w)
+		w = r.get_walker(paths=[p], max_entries=None)
+		count = 0
 		for i in iter(w):
-			print "Vikram"
+			count += 1
+			print count,
 			print i.commit
-		#try:
-		#	c = iter(w).next().commit
-		#except StopIteration:
-		#	print "No file %s anywhere in history." % p
-		#else:
-		#	print "%s was last changed at %s by %s (commit %s)" % (
-		#		p, time.ctime(c.author_time), c.author, c.id)
+
+	def clone(self,clone_repo_name):
+		#Creating a clone of a given repo
+		p.clone(self.repo_path,clone_repo_name)
+
+	def diff(self, commit_sha, compare_to=None):
+        if not compare_to:
+
+            compare_to = self.get_previous_commit(commit_sha)
+
+        commit = self.repo[commit_sha]
+		parent_commit = self.repo[commit_sha.parents[0]]
+		return write_tree_diff(sys.stdout, self.repo.object_store, parent_commit.tree, commit.tree)
+
 
 	#def push():
 
 	#def pull():
 
-	#def clone():
+	#def list_all_git_repo(self):
+
 
 
 

@@ -1,7 +1,8 @@
 import os
 
 from dulwich import porcelain as p
-
+from dulwich import repo
+import time
 
 """Porcelain is a simple wrapper that provides porcelain-like functions on top of Dulwich.
 
@@ -61,30 +62,60 @@ class backend():
 		except:
 			print 'Unable to create README, does it already exist?'
 
-	def add_readme(self):
-		#Currently a variable will have to change to a file#
+	def edit_readme(self, content):
+		name = "README"
+		file = open(os.path.join(self.repo_path,name), 'w')
+		file.write(content)
+		file.close()
+
+	def add(self, a):
+		#a can be list of files or a single file
 		print self.repo_name
 		print self.repo
-		p.add(self.repo, "README")
-		print p.status(self.repo_path)
+		if type(a) == list:
+			for i in a:
+				p.add(self.repo, i)
+		else:
+			p.add(self.repo, a)
 
 
 
+	def get_status(self):
+		if os.path.exists(self.repo_path):
+			print p.status(self.repo_path)
+		else:
+			print "Repo does not exist"
 
-b = backend()
-print b.activity
-print b.email
-b.local_init("turtle")
-b.create_readme_file()
-print b.repo_name
-b.add_readme()
+	#def add_command(self,a = []):
 
-
-
-
+	def commit(self, message):
+		p.commit(self.repo, message)
 
 
+	def get_previous_versions(self):
+		print self.repo_path
+		#r = Repo(".")
+		r = self.repo
+		print r
+		p = "README"
+		w = r.get_walker(paths=[p], max_entries=3)
+		print iter(w)
+		for i in iter(w):
+			print "Vikram"
+			print i.commit
+		#try:
+		#	c = iter(w).next().commit
+		#except StopIteration:
+		#	print "No file %s anywhere in history." % p
+		#else:
+		#	print "%s was last changed at %s by %s (commit %s)" % (
+		#		p, time.ctime(c.author_time), c.author, c.id)
 
+	#def push():
+
+	#def pull():
+
+	#def clone():
 
 
 

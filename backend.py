@@ -43,6 +43,8 @@ class backend():
 		self.activity = ""
 		self.repo_path = ""
 		self.repo_name = ""
+		self.isaclone = 0
+		self.cloned_from = ""
 
 
 	def set_authorinfo(self, username, email):
@@ -110,8 +112,8 @@ class backend():
 	def get_commit_history(self):
 		print self.repo_path
 		r = self.repo
-		p = "README"
-		w = r.get_walker(paths=[p], max_entries=None)
+		f = "README"
+		w = r.get_walker(paths=[f], max_entries=None)
 		count = 0
 		for i in iter(w):
 			count += 1
@@ -140,18 +142,55 @@ class backend():
 			print "No commits yet"
 
 
-	def go_to_commit(self):
+	"""
+	#Some issues - have to be rectified asap
+
+	def revert_to_commit(self):
 		print self.repo_path
 		r = self.repo
-		p = "README"
-		w = r.get_walker(paths=[p], max_entries=None)
+		f = "README"
+		w = r.get_walker(paths=[], max_entries=None)
 		count = 0
 		for i in iter(w):
 			count += 1
 			print count,
+			print type(i)
 			print i
-			print i.commit.get_sha_for()
-		p.reset(self.repo, "hard", )
+			print i.commit.id
+			a = i.commit.id
+			#a = a[0:8]
+			#print i.commit.get_sha_for()
+		print a
+		p.reset(self.repo, "hard", a)
+	"""
+
+
+	def get_diff(self):
+		#p.diff_tree(self.repo,)
+		f = "README"
+		tree_list = []
+		w = self.repo.get_walker(paths=[f], max_entries=None)
+		for i in iter(w):
+			tree_list.append(i.commit.tree)
+			print i.commit.tree
+		print len(tree_list)
+
+		p.diff_tree(self.repo, tree_list[0], tree_list[3])
+
+
+	def update_local(self):
+		if self.isaclone == 1:
+			try:
+				p.pull(self.repo, self.cloned_from)
+			except:
+				print "Error"
+
+		else:
+			print "Can not update"
+
+
+
+
 
 
 

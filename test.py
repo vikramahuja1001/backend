@@ -5,7 +5,7 @@ print b.activity
 #n = input()
 #print "0 : Exit\n1: Initialize a local repo\n2: Create a readme\n3:Adding the readme\n4: Editing readme\n5: Get status"
 while 1:
-	print "0 : Exit\n1: Initialize a local repo\n2: Create a readme\n3:Adding files(Add command)\n4: Editing readme\n5: Get status\n6: Commit\n7: Check Commit History\n8:Commit Logs\n9: Got to commit\n10:Load a repo"
+	print "0 : Exit\n1: Initialize a local repo\n2: Create a readme\n3:Adding files(Add command)\n4: Editing readme\n5: Get status\n6: Commit\n7: Check Commit History\n8:Commit Logs\n9: Got to commit\n10:Load a git repo\n11: Diff tree(2 trees :P)"
 	n = input()
 	if n == 0:
 		break
@@ -32,9 +32,11 @@ while 1:
 	elif n == 8:
 		b.commit_logs()
 	elif n ==9 :
-		b.go_to_commit()
+		b.revert_to_commit()
 	elif n == 10:
 		b.load_repo("turtle")
 		print "Loaded repo : turtle"
+	elif n== 11:
+		b.get_diff()
 
 

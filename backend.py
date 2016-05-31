@@ -1,8 +1,8 @@
 import os
 
 from dulwich import porcelain as p
-from dulwich import repo
-from dulwich.patch import write_tree_diff
+from dulwich.repo import Repo as DulwichRepo
+from dulwich import repo 
 import time
 
 """Porcelain is a simple wrapper that provides porcelain-like functions on top of Dulwich.
@@ -35,19 +35,23 @@ These functions are meant to behave similarly to the git subcommands.
 Differences in behaviour are considered bugs.
 """
 
+
 class backend():
 	def __init__(self):
 		self.username = ""
 		self.email = ""
-		self.activity = "TurtleJS"
+		self.activity = ""
 		self.repo_path = ""
 		self.repo_name = ""
+
 
 	def set_authorinfo(self, username, email):
 		self.username = username
 		self.email = email
 
-	def local_init(self, repo_name):
+
+	def local_init(self, repo_name, activity):
+		self.activity = activity
 		self.repo_name = repo_name
 		try:
 			self.repo = p.init(repo_name)
@@ -58,20 +62,27 @@ class backend():
 		except:
 			print "Repo already exist, delete it first"
 
-	def create_readme_file(self):
-		name = "README"
+	def load_repo(self, repo_name):
+		self.repo_name = repo_name
+		self.repo = DulwichRepo(self.repo_name)
+		self.current_dir = os.getcwd()
+		self.repo_path = self.current_dir + '/' + self.repo_name
+
+
+	def create_file(self, name, content):
 		try:
 			file = open(os.path.join(self.repo_path,name), 'w')
-			file.write("This is a readme")
+			file.write(content)
 			file.close()
 		except:
 			print 'Unable to create README, does it already exist?'
 
-	def edit_readme(self, content):
-		name = "README"
+
+	def edit_readme(self, name, content):
 		file = open(os.path.join(self.repo_path,name), 'w')
 		file.write(content)
 		file.close()
+
 
 	def add(self, a):
 		#a can be list of files or a single file
@@ -86,12 +97,15 @@ class backend():
 
 	def get_status(self):
 		if os.path.exists(self.repo_path):
+			print self.repo_path
 			print p.status(self.repo_path)
 		else:
 			print "Repo does not exist"
 
+
 	def commit(self, message):
 		p.commit(self.repo, message)
+
 
 	def get_commit_history(self):
 		print self.repo_path
@@ -102,28 +116,50 @@ class backend():
 		for i in iter(w):
 			count += 1
 			print count,
+			print i
 			print i.commit
 
-	def clone(self,clone_repo_name):
-		#Creating a clone of a given repo
+
+	def clone_local(self,clone_repo_name):
+		#Creating a clone of a given repo. The repo should be local.
 		p.clone(self.repo_path,clone_repo_name)
 
-	def diff(self, commit_sha, compare_to=None):
-        if not compare_to:
 
-            compare_to = self.get_previous_commit(commit_sha)
+	def clone_remote(remote_repo_name, clone_repo_name):
+		#Creating a clone of remote repo.
+		p.clone(remote_repo_name, clone_repo_name)
 
-        commit = self.repo[commit_sha]
-		parent_commit = self.repo[commit_sha.parents[0]]
-		return write_tree_diff(sys.stdout, self.repo.object_store, parent_commit.tree, commit.tree)
+
+	def commit_logs(self):
+		try:
+			if os.path.exists(self.repo_path):
+				print p.log(self.repo)
+			else:
+				print "Repo does not exist"
+		except:
+			print "No commits yet"
+
+
+	def go_to_commit(self):
+		print self.repo_path
+		r = self.repo
+		p = "README"
+		w = r.get_walker(paths=[p], max_entries=None)
+		count = 0
+		for i in iter(w):
+			count += 1
+			print count,
+			print i
+			print i.commit.get_sha_for()
+		p.reset(self.repo, "hard", )
+
 
 
 	#def push():
 
 	#def pull():
 
-	#def list_all_git_repo(self):
-
+	#def clone():
 
 
 
